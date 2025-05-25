@@ -1,0 +1,119 @@
+name: Make Case
+on: 
+  workflow_dispatch:
+    inputs:
+      low-case:
+        description: 'If enabled, this will lower the height of the tray and frame such that they stop at the switch snap-on point.'
+        type: boolean
+        default: false
+      switch-type:
+        description: 'MX or Choc (V1 or V2). Allowed values: "mx", "choc".'
+        required: true
+        type: string
+      mcu:
+        description: 'MCU used. Allowed values: "xiao", "rp2040-zero", "either".'
+        required: true
+        type: string
+      smd-mcu:
+        description: 'MCU is mounted SMD'
+        type: boolean
+        default: false
+      mcu-socket-height:
+        description: 'The height of the sockets in millimeters above the PCB. Default 4.7mm (round pin sockets)'
+        required: true
+        default: "4.7"
+      battery:
+        description: 'Battery type used. Allowed values: "none", "coin", "lipo".'
+        required: true
+        type: string
+      no-usb-a:
+        description: "Xiao MCU used without a usb-A 3.0 port."
+        type: boolean
+        default: false
+      block-usb:
+        description: "Xiao MCU used with a usb-A 3.0 port, but the port is blocked by the case."
+        type: boolean
+        default: false
+      tenting:
+        description: 'Integrated tenting options. Allowed values: "none", "magsafe", "puck". A magsafe sticker (inner diameter 46mm, outer diameter 56mm, thickness 0.7mm or less) or the SplitKB tenting puck.'
+        default: none
+        type: string
+      smd-diodes:
+        description: 'Set this flag if you are using SMD diodes. Will slightly reduce the height of the case.'
+        type: boolean
+        default: false
+      expose:
+        description: "Select components which shouldn't be covered up by the tray. Allowed values: comma-separated list of 'mcu', 'battery', 'usb'. Note that 'battery' only has an effect if 'coin' is selected."
+        required: true
+        type: string
+      outer-keys:
+        description: 'Which outer pinky keys should be enabled. Allowed values: "all", "upper-1.5u", "upper-1u", "lower", "none". All sets the upper key to 1.5u.'
+        required: true
+        type: string
+      inner-index:
+        description: 'Adjust the number and position of the inner index keys for better comfort. Allowed values: "all", "reduced", "flex". Flex allows either configuration to be used.'
+        required: true
+        type: string
+      remove-num-row:
+        description: 'Removes the num row keys by covering them up with the tray.'
+        type: boolean
+        default: false
+      thumb-type:
+        description: 'Select what thumb cluster type should be used. Allowed values: "ripple", "all-1u", "classic", "flex". Classic is 1u-1u-1.5u. Flex allows for any of the three options, but may be less stable.'
+        required: true
+        type: string
+      thumbs:
+        description: 'Select which thumbs to use. Allowed values: comma-separated list of "reachy", "tucky", "middle".'
+        required: true
+        type: string
+      thumb-adjustment:
+        description: 'Move the thumb cluster. Format: "x,y,r" where x is the number of mm that the cluster should be moved inwards, y is the number of mm that the cluster should be moved downwards, and r is the clockwise rotation in degrees around the outermost down-most corner of the cluster.'
+        required: true
+        default: "0,0,0"
+      pinkies:
+        description: 'Select which pinky keys to use. Allowed values: comma-separated list of "upper", "home", "lower".'
+        required: true
+        type: string
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-24.04
+    steps:    
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build123d=0.9.1
+
+      - name: Run Python command
+        run: |
+          python case/make_case.py \
+          ${{ github.event.inputs['low-case'] && '--low-case' || '' }} \
+          ${{ github.event.inputs['smd-mcu'] && '--smd-mcu' || '' }} \
+          ${{ github.event.inputs['no-usb-a'] && '--no-usb-a' || '' }} \
+          ${{ github.event.inputs['block-usb'] && '--block-usb' || '' }} \
+          ${{ github.event.inputs['smd-diodes'] && '--smd-diodes' || '' }} \
+          ${{ github.event.inputs['remove-num-row'] && '--remove-num-row' || '' }} \
+          --switch-type ${{ github.event.inputs['switch-type'] }} \
+          --mcu ${{ github.event.inputs['mcu'] }} \
+          --mcu-socket-height ${{ github.event.inputs['mcu-socket-height'] }} \
+          --battery ${{ github.event.inputs['battery'] }} \
+          --tenting ${{ github.event.inputs['tenting'] }} \
+          --expose ${{ github.event.inputs['expose'] }} \
+          --outer-keys ${{ github.event.inputs['outer-keys'] }} \
+          --inner-index ${{ github.event.inputs['inner-index'] }} \
+          --thumb-type ${{ github.event.inputs['thumb-type'] }} \
+          --thumbs ${{ github.event.inputs['thumbs'] }} \
+          --thumb-adjustment "${{ github.event.inputs['thumb-adjustment'] }}" \
+          --pinkies "${{ github.event.inputs['pinkies'] }}" \
+          --export-stl
+    
+      - name: Archive (${{ env.display_name }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: apiaster-case-stl
+          path: case/stl/
