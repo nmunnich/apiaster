@@ -90,7 +90,7 @@ Column staggered keyboards stagger the keys in line with your fingers.
 | *[Menura](https://github.com/rmuraglia/menura-kb) Keyboard* |
 
 
-The amount of stagger that is ideal is generally related to the lengths of each finger. Apiaster's stagger is not as mild as the [corne](https://github.com/foostan/crkbd), nor is it as extreme as the [ferris](https://github.com/foostan/crkbd). The ring finger stagger is slightly less than that of the index, making it more suitable for those whose ring finger is longer than their index, at the cost of being less suitable towards those with the opposite.
+The amount of stagger that is ideal is generally related to the lengths of each finger. Apiaster's stagger is not as mild as the [corne](https://github.com/foostan/crkbd), nor is it as extreme as the [ferris](https://github.com/pierrechevalier83/ferris). The ring finger stagger is slightly less than that of the index, making it more suitable for those whose ring finger is longer than their index, at the cost of being less suitable towards those with the opposite.
 
 Some keyboards also introduce what is known as "splay", where the columns are no longer parallel to one another, but splay outwards. This is because for most people, our fingers will naturally splay outwards to some degree as they are stretched. 
 
